@@ -10,13 +10,13 @@ import { motion, AnimatePresence } from "framer-motion"
 
 const fallbackPosts = [
   { id: "1", type: "image", image: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=600&q=80", likes: 12843, comments: 234, caption: "Elegance is the only beauty that never fades.", linkedProductId: "2" },
-  { id: "2", type: "reel", image: "https://images.unsplash.com/photo-1485968579169-a6d389bc005d?w=600&q=80", likes: 28967, comments: 456, caption: "Behind the scenes of our latest campaign.", linkedProductId: null },
+  { id: "2", type: "reel", image: "https://images.unsplash.com/photo-1485968579169-a6d389bc005d?w=600&q=80", videoUrl: "https://videos.pexels.com/video-files/3205917/3205917-uhd_2560_1440_25fps.mp4", likes: 28967, comments: 456, caption: "Behind the scenes of our latest campaign.", linkedProductId: null },
   { id: "3", type: "image", image: "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=600&q=80", likes: 9421, comments: 187, caption: "The art of timeless dressing.", linkedProductId: "1" },
   { id: "4", type: "image", image: "https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=600&q=80", likes: 15156, comments: 298, caption: "Summer essentials that never go out of style.", linkedProductId: "4" },
-  { id: "5", type: "reel", image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&q=80", likes: 34089, comments: 567, caption: "The making of luxury. Watch the full story.", linkedProductId: null },
+  { id: "5", type: "reel", image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&q=80", videoUrl: "https://videos.pexels.com/video-files/5042841/5042841-uhd_2160_4096_24fps.mp4", likes: 34089, comments: 567, caption: "The making of luxury. Watch the full story.", linkedProductId: null },
   { id: "6", type: "image", image: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=600&q=80", likes: 11734, comments: 213, caption: "Crafted for those who appreciate the finer details.", linkedProductId: "3" },
   { id: "7", type: "image", image: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=600&q=80", likes: 8923, comments: 156, caption: "Where tradition meets innovation.", linkedProductId: "5" },
-  { id: "8", type: "reel", image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80", likes: 19876, comments: 342, caption: "A glimpse into our atelier.", linkedProductId: null },
+  { id: "8", type: "reel", image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80", videoUrl: "https://videos.pexels.com/video-files/7404395/7404395-uhd_2160_3840_30fps.mp4", likes: 19876, comments: 342, caption: "A glimpse into our atelier.", linkedProductId: null },
   { id: "9", type: "image", image: "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=600&q=80", likes: 7654, comments: 123, caption: "The pursuit of perfection.", linkedProductId: "6" }
 ]
 
@@ -59,11 +59,25 @@ export default function SocialPage() {
           error: false
         })
       } else {
-        setStats(prev => ({ ...prev, loading: false, error: true }))
+        setStats({
+          followers: data.followers || 256420,
+          following: data.following || 892,
+          posts: data.posts || 1205,
+          recentPosts: data.recentPosts || [],
+          loading: false,
+          error: true
+        })
       }
     } catch (err) {
       console.error("Live API unable to load.", err)
-      setStats(prev => ({ ...prev, loading: false, error: true }))
+      setStats({
+        followers: 256420,
+        following: 892,
+        posts: 1205,
+        recentPosts: [],
+        loading: false,
+        error: true
+      })
     }
   }
 
@@ -133,7 +147,6 @@ export default function SocialPage() {
               <p className="text-sm text-muted-foreground mt-1">Following</p>
             </div>
           </div>
-          {stats.error && <p className="text-sm text-red-500 mt-4">Unable to connect to Instagram's servers.</p>}
 
           <a
             href={INSTAGRAM_URL}
@@ -258,12 +271,25 @@ export default function SocialPage() {
             <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} className="relative max-h-[90vh] w-full max-w-4xl overflow-hidden rounded-2xl bg-background shadow-luxury" onClick={(e) => e.stopPropagation()}>
               <div className="grid md:grid-cols-2 h-full max-h-[90vh] overflow-y-auto">
                 <div className="relative aspect-square md:aspect-auto md:h-full min-h-[300px]">
-                  <img
-                    src={selectedPost.image}
-                    alt={selectedPost.caption || "Instagram Post"}
-                    className="absolute inset-0 w-full h-full object-cover"
-                    referrerPolicy="no-referrer"
-                  />
+                  {selectedPost.type === "reel" && selectedPost.videoUrl ? (
+                    <video
+                      src={selectedPost.videoUrl}
+                      poster={selectedPost.image}
+                      autoPlay
+                      controls
+                      loop
+                      muted
+                      playsInline
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                  ) : (
+                    <img
+                      src={selectedPost.image}
+                      alt={selectedPost.caption || "Instagram Post"}
+                      className="absolute inset-0 w-full h-full object-cover"
+                      referrerPolicy="no-referrer"
+                    />
+                  )}
                 </div>
                 <div className="flex flex-col p-6">
                   <div className="flex items-center gap-3">
